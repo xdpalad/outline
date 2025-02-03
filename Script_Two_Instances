@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Конфигурация для первого инстанса
+CONTAINER_NAME_1="shadowbox-1"
+SHADOWBOX_DIR_1="/opt/outline/instance1"
+API_PORT_1=7001
+KEYS_PORT_1=443
+
+# Конфигурация для второго инстанса
+CONTAINER_NAME_2="shadowbox-ssh"
+SHADOWBOX_DIR_2="/opt/outline/instance-ssh"
+API_PORT_2=7002
+KEYS_PORT_2=444
+
+function install_outline() {
+    local CONTAINER_NAME=$1
+    local SHADOWBOX_DIR=$2
+    local API_PORT=$3
+    local KEYS_PORT=$4
+    
+    echo "Installing Outline instance: ${CONTAINER_NAME}"
+    export CONTAINER_NAME
+    export SHADOWBOX_DIR
+    
+    # Запускаем оригинальный скрипт установки с нашими параметрами
+    bash <(wget -qO- https://raw.githubusercontent.com/Jigsaw-Code/outline-server/master/src/server_manager/install_scripts/install_server.sh) \
+        --api-port "${API_PORT}" \
+        --keys-port "${KEYS_PORT}"
+}
+
+# Устанавливаем первый инстанс
+install_outline "${CONTAINER_NAME_1}" "${SHADOWBOX_DIR_1}" "${API_PORT_1}" "${KEYS_PORT_1}"
+
+# Добавляем паузу между установками
+sleep 10
+
+# Устанавливаем второй инстанс
+install_outline "${CONTAINER_NAME_2}" "${SHADOWBOX_DIR_2}" "${API_PORT_2}" "${KEYS_PORT_2}"
