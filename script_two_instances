@@ -23,7 +23,7 @@ function install_outline() {
     export SHADOWBOX_DIR
     
     # Запускаем оригинальный скрипт установки с нашими параметрами
-    bash <(wget -qO- https://raw.githubusercontent.com/Jigsaw-Code/outline-server/master/src/server_manager/install_scripts/install_server.sh) \
+    bash <(wget -qO- https://raw.githubusercontent.com/xdpalad/outline/main/install_scripts/install_server.sh) \
         --api-port "${API_PORT}" \
         --keys-port "${KEYS_PORT}"
 }
