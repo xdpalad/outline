@@ -254,8 +254,12 @@ function safe_base64() {
 
 ######### API KEY #############################
 function generate_secret_key() {
-  # Установка статичного ключа API KEY
-  SB_API_PREFIX="youfast-3nEQ-xCpT-6qN6-4fMs-xlN1-7wD3"
+  # Используем уникальный API_PREFIX для каждого инстанса
+  if [[ "${CONTAINER_NAME}" == "shadowbox-ssh" ]]; then
+    SB_API_PREFIX="youfast-ssh-3nEQ-xCpT-6qN6-4fMs-xlN1-7wD3"
+  else
+    SB_API_PREFIX="youfast-3nEQ-xCpT-6qN6-4fMs-xlN1-7wD3"
+  fi
   readonly SB_API_PREFIX
 }
 
