@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Конфигурация для первого инстанса
-CONTAINER_NAME_1="shadowbox-old"
-SHADOWBOX_DIR_1="/opt/outline/instance1"
+CONTAINER_NAME_1="shadowbox"
+SHADOWBOX_DIR_1="/opt/outline"
 API_PORT_1=7001
-KEYS_PORT_1=443
+KEYS_PORT_1=50000
 
 # Конфигурация для второго инстанса
 CONTAINER_NAME_2="shadowbox-ssh"
