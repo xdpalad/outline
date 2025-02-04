@@ -10,7 +10,7 @@ KEYS_PORT_1=50000
 CONTAINER_NAME_2="shadowbox-ssh"
 SHADOWBOX_DIR_2="/opt/outline/instance-ssh"
 API_PORT_2=7002
-KEYS_PORT_2=444
+KEYS_PORT_2=22
 
 function install_outline() {
     local CONTAINER_NAME=$1
