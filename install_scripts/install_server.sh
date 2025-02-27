@@ -387,59 +387,25 @@ function write_config() {
 }
 
 function start_shadowbox() {
-  # TODO(fortuna): Write API_PORT to config file,
-  # rather than pass in the environment.
-  local -r START_SCRIPT="${STATE_DIR}/start_container.sh"
-  cat <<-EOF > "${START_SCRIPT}"
-# This script starts the Outline server container ("Shadowbox").
-# If you need to customize how the server is run, you can edit this script, then restart with:
-#
-#     "${START_SCRIPT}"
-
-set -eu
-
-docker stop "${CONTAINER_NAME}" 2> /dev/null || true
-docker rm -f "${CONTAINER_NAME}" 2> /dev/null || true
-
-docker_command=(
-  docker
-  run
-  -d
-  --name "${CONTAINER_NAME}" --restart always --net host
-
-  # Used by Watchtower to know which containers to monitor.
-  --label 'com.centurylinklabs.watchtower.enable=true'
-  --label 'com.centurylinklabs.watchtower.scope=outline'
-
-  # Use log rotation. See https://docs.docker.com/config/containers/logging/configure/.
-  --log-driver local
-
-  # The state that is persisted across restarts.
-  -v "${STATE_DIR}:${STATE_DIR}"
-
-  # Where the container keeps its persistent state.
-  -e "SB_STATE_DIR=${STATE_DIR}"
-
-  # Port number and path prefix used by the server manager API.
-  -e "SB_API_PORT=${API_PORT}"
-  -e "SB_API_PREFIX=${SB_API_PREFIX}"
-
-  # Location of the API TLS certificate and key.
-  -e "SB_CERTIFICATE_FILE=${SB_CERTIFICATE_FILE}"
-  -e "SB_PRIVATE_KEY_FILE=${SB_PRIVATE_KEY_FILE}"
-
-  # Where to report metrics to, if opted-in.
-  -e "SB_METRICS_URL=${SB_METRICS_URL:-}"
-
-  # The Outline server image to run.
-  "${SB_IMAGE}"
-)
-"\${docker_command[@]}"
-EOF
-  chmod +x "${START_SCRIPT}"
-  # Declare then assign. Assigning on declaration messes up the return code.
+  # Эта функция запускает контейнер Shadowbox в Docker.
+  # TODO(fortuna): Записать API_PORT в конфигурационный файл,
+  # а не передавать в среду.
+  # Создается массив docker_shadowbox_flags, который содержит флаги и параметры для запуска контейнера Docker.
+  local -ar docker_shadowbox_flags=(
+    --name "${CONTAINER_NAME}" --restart always -p 50000:443 -p 7001:7001 -p 51760:51760
+    --label 'com.centurylinklabs.watchtower.enable=true'
+    -v "${STATE_DIR}:${STATE_DIR}"
+    -e "SB_STATE_DIR=${STATE_DIR}"
+    -e "SB_API_PORT=${API_PORT}"
+    -e "SB_API_PREFIX=${SB_API_PREFIX}"
+    -e "SB_CERTIFICATE_FILE=${SB_CERTIFICATE_FILE}"
+    -e "SB_PRIVATE_KEY_FILE=${SB_PRIVATE_KEY_FILE}"
+    -e "SB_METRICS_URL=${SB_METRICS_URL:-}"
+    -e "SB_DEFAULT_SERVER_NAME=${SB_DEFAULT_SERVER_NAME:-}"
+  )
+  # Сам по себе local искажает код возврата.
   local STDERR_OUTPUT
-  STDERR_OUTPUT="$({ "${START_SCRIPT}" >/dev/null; } 2>&1)" && return
+  STDERR_OUTPUT="$(docker run -d "${docker_shadowbox_flags[@]}" "${SB_IMAGE}" 2>&1 >/dev/null)" && return
   readonly STDERR_OUTPUT
   log_error "FAILED"
   if docker_container_exists "${CONTAINER_NAME}"; then
